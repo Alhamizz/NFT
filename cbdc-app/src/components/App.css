@@ -29,6 +29,14 @@
   color: #61dafb;
 }
 
+#display_image{
+  width: 375px;
+  height: 211px;
+  border: 1px solid black;
+  background-position: center;
+  background-size: cover;
+}
+
 table, th {
   border: 1px solid black;
   padding: 5px;

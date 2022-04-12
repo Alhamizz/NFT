@@ -94,6 +94,7 @@ class App extends Component {
       } 
     }
   }
+
   async distributedTokens(){
     if(this.state.token!=='undefined'){
       
@@ -143,52 +144,41 @@ class App extends Component {
           console.log('Error, Member not match: ', e)
         }
       }
-
-    
   }
 
-  async redemption(amount){
-    if(this.state.dApps!=='undefined'){
-      try{
-        await this.state.dApps.methods.redemption(amount.toString()).send({from: this.state.account})
-        .on('transactionHash', (hash) => {
-          var answer = window.confirm("Redirect to etherscan?")
-          if (answer){
-            // similar behavior as an HTTP redirect
-            window.open("https://ropsten.etherscan.io/tx/" + hash);
-         
-          }
-          
-        })
-      } catch (e) {
-        console.log('Error, issuance: ', e)
-      }
-    }
-  }
-
-  async addmember(name, gender, address){
-    if(this.state.dApps!=='undefined'){
-      
-      try{       
-        await this.state.dApps.methods.AddMember(name, gender, address).send({from: this.state.account})
-        .on('transactionHash', (hash) => {
-          var answer = window.confirm("Redirect to etherscan?")
-          if (answer){
-            // similar behavior as an HTTP redirect
-            window.open("https://ropsten.etherscan.io/tx/" + hash);   
-          }         
-        })
-      } catch (e) {
-        console.log('Error', e)
-      }
-    }
-  }
   
-  async loadmemberslength(){
+  async loadcountdown(){
     if(this.state.dApps!=='undefined'){
       try{
-        const memberslength = await this.state.dApps.methods.MemberLength().call()
-        this.setState({memberslength: memberslength})
+        // Set the date we're counting down to
+        var countDownDate = new Date("Jan 5, 2024 15:37:25").getTime();
+
+        // Update the count down every 1 second
+        var x = setInterval(function() {
+
+          // Get today's date and time
+          var now = new Date().getTime();
+
+          // Find the distance between now and the count down date
+          var distance = countDownDate - now;
+
+          // Time calculations for days, hours, minutes and seconds
+          var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          // Display the result in the element with id="demo"
+          let countdown = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+          // If the count down is finished, write some text
+          if (distance < 0) {
+            clearInterval(x);
+            countdown = "EXPIRED";
+          }
+
+          this.setState({countdown :countdown})
+        }, 1000);
       }
       catch (e) {
         console.log('Error, load members length: ', e)
@@ -196,79 +186,26 @@ class App extends Component {
     }
   }
 
-  async loadmembers(){
-
+  async loadimage(){
     if(this.state.dApps!=='undefined'){
-     
       try{
-        var member =  await this.state.dApps.methods.ShowMembers().call()
-        var Name = [];
-        var Gender = [];
-        var Address = [];
+        const image_input = document.querySelector("#image_input");
+        var uploaded_image = "";
 
-        for (var i = 0; i < this.state.memberslength; i++){
-          Name[i] = member[i].Name;
-          Gender[i] = member[i].Gender;  
-          Address[i] = member[i].Address; 
-           
-         this.setState({Name : Name, Gender : Gender, Address : Address})
-        }
-      } catch (e) {
-        console.log('Error, Show Members: ', e)
+        image_input.addEventListener("change", function(){
+          const reader = new FileReader();
+          reader.addEventListener("load", () => {
+            uploaded_image = reader.result;
+            document.querySelector("#display_image").style.backgroundImage = 'url(${uploaded_image})';
+          })
+          reader.readAsDataURL(this.files[0]);
+        })
       }
-    
-  }
-}
-
-async concatX(stringA, stringB){
-  if(this.state.dApps!=='undefined'){
-    
-    try{       
-      let resultX = stringA.concat(stringB);
-      this.setState({resultX : resultX})
- 
-    } catch (e) {
-      console.log('Error', e)
+      catch (e) {
+        console.log('Error, load members length: ', e)
+      } 
     }
   }
-}
-
-async concatY(stringC, numberD){
-  if(this.state.dApps!=='undefined'){
-    
-    try{       
-      let resultY = stringC + numberD;
-      this.setState({resultY : resultY})
- 
-    } catch (e) {
-      console.log('Error', e)
-    }
-  }
-}
-
-async concatZ(){
-
-  if(this.state.dApps!=='undefined'){
-   
-    try{
-      function Item(string1, string2, string3) {
-        this.string1 = string1;
-        this.string2 = string2;
-        this.string3 = string3;
-      }
-      var Items = [
-        new Item('Aku','makan','nasi'),
-        new Item('Dia','makan','sayur')
-    ];
-
-    let resultZ = Items;
-    this.setState({resultZ : resultZ})
-
-    } catch (e) {
-      console.log('Error', e)
-    } 
-  }
-}
  
   constructor(props) {
     super(props)
@@ -319,13 +256,19 @@ async concatZ(){
                       <div className="content mr-auto ml-auto">
                         <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" >
 
-                          <Tab eventKey="issuance" title="Issuance">
+                          <Tab eventKey="CountDown" title="CountDown">
                             <div>
                               <br></br>
 
                             <br></br>
-                              How much issuance?
+                              CountDown...
                               <br></br>
+
+                              <p>
+                                {this.state.countdown}
+                              </p>
+                              
+
                               <form onSubmit={(e) => {
                                 e.preventDefault()
                                 let amount = this.IssuanceAmount.value
@@ -372,10 +315,10 @@ async concatZ(){
 
                             </div>
                           </Tab>
-                          <Tab eventKey="transfer" title="Transfer">
+                          <Tab eventKey="NFT Mint" title="NFT Mint">
                             <div>
                             <br></br>
-                              How much to Transfer?
+                              NFT Data
                               <br></br>
 
                               <form onSubmit={(e) => {
@@ -391,294 +334,45 @@ async concatZ(){
                                 <br></br>
                                   
 
-                                  <label htmlFor="Transferaddress" style={{float: "left"}}>To:</label>
+                                  <label htmlFor="Name" style={{float: "left"}}>Name:</label>
                                   <input
                                     id='Transferaddress'
                                     type='text'
                                     ref={(input) => { this.Transferaddress = input }}
                                     className="form-control form-control-md"
-                                    placeholder='to...'
+                                    placeholder='Name..'
                                     required />
 
-                                  <label htmlFor="TypeTransfer" style={{float: "left"}}>Token Transfer:</label>
-                                  <select name="TypeTransfer" id="TypeTransfer" ref={(input) => { this.TypeTransfer = input }} className="form-control form-control-md">
-                                    <option  value="Token">{this.state.tokenName}-{this.state.tokenAddress}</option>      
-                                  </select>
-
-                                  <label htmlFor="TransferAmount" style={{float: "left"}}>Amount (1 ETH = 1 x 10^18 Wei):</label>
+                                  <label htmlFor="Strength" style={{float: "left"}}>Strength:</label>
                                   <input
                                     id='TransferAmount'
                                     step="0.01"
                                     type='number'
                                     ref={(input) => { this.TransferAmount = input }}
                                     className="form-control form-control-md"
-                                    placeholder='amount...'
+                                    placeholder='0'
                                     required />
+
+                                  <label htmlFor="Picture" style={{float: "left"}}>Picture:</label>
+                                  <br></br>
+                                  <input
+                                    type='file'
+                                    id="image_input"
+                                    accept="Image/png, image/jpg"
+                                    required />
+
+                                  <br id="display_image"></br>
+
+                                  <script src="script.js"></script>
 
                                   
                                 </div>
-                                <button type='submit' className='btn btn-primary'>Transfer</button>
+                                <button type='submit' className='btn btn-primary'>Mint</button>
                               </form>
 
                             </div>
                           </Tab>
-                          <Tab eventKey="redemption" title="Redemption">
-                            <div>
-                              <br></br>
-
-                            <br></br>
-                            How much redemption?
-                              <br></br>
-                              <form onSubmit={(e) => {
-                                e.preventDefault()
-                                let amount = this.RedemptionAmount.value
-
-                                amount = amount * 10**18 //convert to wei
-                                
-                                this.redemption(amount)
-                               
-                              }}>
-                                <div className='form-group mr-sm-2'>
-
-                                  <br></br>
-                                  <br></br>
-
-                                  <label htmlFor="TypeRedeem" style={{float: "left"}}>Token Redeem:</label>
-                                  <select name="TypeRedeem" id="TypeRedeem" ref={(input) => { this.TypeRedeem = input }} className="form-control form-control-md">
-                                    <option value="Token">{this.state.tokenAddress}-{this.state.tokenAddress}</option>
-                                  </select>
-
-                                  <label htmlFor="RedemptionAmount" style={{float: "left"}}>Amount:</label>
-                                  <input
-                                    id='RedemptionAmount'
-                                    step="0.01"
-                                    type='number'
-                                    ref={(input) => { this.RedemptionAmount = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='amount...'
-                                    required />
-
-                                </div>
-                                <button type='submit' className='btn btn-primary'>Redemption</button>
-                              </form>
-
-                            </div>
-                          </Tab>
-
-                          <Tab eventKey="member" title="Member dan concat struct">
-                           <div>
-
-                            <br></br> 
-
-                             <br></br>
-                              Add Member
-                                                          
-                              <form onSubmit={(e) => {
-                                  e.preventDefault()
-                                  let name = this.name.value
-                                  let gender = this.gender.value
-                                  let address = this.address.value
-                                  this.addmember(name, gender, address)
-                                 //   console.log(Member[0].name);
-                                }}>
-                                  
-                                  <div className='form-group mr-sm-2'>
-                                  <br></br>
-                                    <label htmlFor="name" style={{float: "left"}}>Name:</label>
-                                    <input
-                                      id='name'
-                                      type='text'
-                                      ref={(input) => { this.name = input }}
-                                      className="form-control form-control-md"
-                                      placeholder='your name..'
-                                      required />
-
-                                    <label htmlFor="gender" style={{float: "left"}}>Gender:</label>
-                                    <input
-                                      id='gender'
-                                      type='text'
-                                      ref={(input) => { this.gender = input }}
-                                      className="form-control form-control-md"
-                                      placeholder='your gender..'
-                                      required />
-
-                                    <label htmlFor="address" style={{float: "left"}}>Address:</label>
-                                    <input
-                                      id='address'
-                                      type='text'
-                                      ref={(input) => { this.address = input }}
-                                      className="form-control form-control-md"
-                                      placeholder='your wallet address..'
-                                      required />
-                  
-                                  </div>
-                                  <br></br>
-                                  <button type='submit' className='btn btn-primary'>Add</button>
-                                </form>
-                                
-                                <br></br>
-                                Show Member
-                                <br></br>
-                                <br></br>
-
-                            
-                                <div>
-
-                                  <table >
-                                    <thead>
-                                      <tr>
-                                        <th>Name</th>
-                                        <th>Gender</th>
-                                        <th>Address</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      
-                                      <th>
-                                        {this.state.Name.map(item => (
-                                          <tr key={item}>{item}</tr>
-                                         ))}
-                                      </th>
-
-                                      <th>
-                                         {this.state.Gender.map(item => (
-                                          <tr key={item}>{item}</tr>
-                                         ))}
-                                      </th>
-                                      
-                                      <th>
-                                         {this.state.Address.map(item => (
-                                          <tr key={item}>{item}</tr>
-                                         ))}
-                                      </th>
-
-                                    </tbody>
-                                  </table>                               
-                                  
-                                </div>
-
-                                <br></br> 
-
-                                <form onSubmit={(e) => {
-                                  e.preventDefault()
-                                  this.loadmembers()
-                                  
-                                }}>
-                                                                 
-                                  <button type='submit' className='btn btn-primary'>Show</button>
-                                </form>
-                                
-                             </div>
-                          </Tab>
-
-                          <Tab eventKey="Concat String dan String" title="Concat String dan String">
-                            <div>
-                              <br></br>
-
-                            Input String A dan String B?
-                              <br></br>
-                              <form onSubmit={(e) => {
-                                e.preventDefault()
-                                let stringA = this.stringA.value
-                                let stringB = this.stringB.value
-                                
-                                this.concatX(stringA, stringB)
-                               
-                              }}>
-                                <div className='form-group mr-sm-2'>
-
-                                  <br></br>
-                                  <br></br>
-
-                                  <label htmlFor="StringA" style={{float: "left"}}>StringA:</label>
-                                  <input
-                                    id='stringA'
-                                    type='next'
-                                    ref={(input) => { this.stringA = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='StringA..'
-                                    required />
-
-                                  <label htmlFor="StringB" style={{float: "left"}}>StringB:</label>
-                                  <input
-                                    id='stringB'
-                                    type='text'
-                                    ref={(input) => { this.stringB = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='StringB..'
-                                    required />
-
-                                </div>
-                                <button type='submit' className='btn btn-primary'>Concat String dan String</button>
-                              </form>
-
-                              <div>
-                                <br></br>
-                                <p style={{float: "left"}}>
-                                  Result : {this.state.resultX}
-                                </p>                                                 
-                              </div>
-
-                            </div>
-                          </Tab>
-
-                          <Tab eventKey="Concat String dan Number" title="Concat String dan Number">
-                            <div>
-                              <br></br>
-
-                            Input String C dan Number D?
-                              <br></br>
-                              <form onSubmit={(e) => {
-                                e.preventDefault()
-                                let stringC = this.stringC.value
-                                let numberD = this.numberD.value
-                                
-                                this.concatY(stringC, numberD)
-                               
-                              }}>
-                                <div className='form-group mr-sm-2'>
-
-                                  <br></br>
-                                  <br></br>
-
-                                  <label htmlFor="StringC" style={{float: "left"}}>StringC:</label>
-                                  <input
-                                    id='stringC'
-                                    type='text'
-                                    ref={(input) => { this.stringC = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='StringC..'
-                                    required />
-
-                                  <label htmlFor="NumberD" style={{float: "left"}}>NumberD:</label>
-                                  <input
-                                    id='NumberD'
-                                    type='number'
-                                    ref={(input) => { this.numberD = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='NumberD..'
-                                    required />
-
-                                </div>
-                                <button type='submit' className='btn btn-primary'>Concat String dan Number</button>
-                              </form>
-
-                              <div>
-                                <br></br>
-                                <p style={{float: "left"}}>
-                                  Result : {this.state.resultY}
-                                </p>                                                 
-                              </div>
-
-                              <div>
-                                <br></br>
-                                <p style={{float: "left"}}>
-                                  Result : {this.state.resultZ}
-                                </p>                                                 
-                               </div>
-
-                            </div>
-                          </Tab>
+                          
 
                         </Tabs>
                         </div>
