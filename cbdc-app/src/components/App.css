@@ -29,18 +29,43 @@
   color: #61dafb;
 }
 
-#display_image{
-  width: 375px;
-  height: 211px;
-  border: 1px solid black;
-  background-position: center;
-  background-size: cover;
-}
-
 table, th {
   border: 1px solid black;
   padding: 5px;
   width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.countdown-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.countdown-item {
+  color: #111;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  line-height: 30px;
+  margin: 10px;
+  padding-top: 10px;
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.countdown-item span {
+  color: #333;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 @keyframes App-logo-spin {

@@ -1,29 +1,139 @@
 import logo from './logo.svg';
 import { Tabs, Tab } from 'react-bootstrap'
-import Token from '../abis/Token.json'
-import dapps from '../abis/dapps.json'
-import React, { Component } from 'react';
+import React, {Component } from "react";
 import Web3 from 'web3';
 
-import './App.css';
+//import moment from 'moment';
+
 import './App.css';
 
 class App extends Component {
 
   async componentWillMount() {
     await this.loadBlockchainData(this.props.dispatch)
-    await this.loadTokenName()   
-    await this.distributedTokens()
-    await this.loadmemberslength()
-
-    document.title = "Uang Digital Berbasis Blockchain"
+    document.title = "Mint NFT"
   }
+
+    componentDidMount() {
+      this.interval = setInterval(() => { 
+      var year = 0;
+      var month = 0;
+      var day = 0;
+      var hour = 0;
+      var minute = 0;
+      var second = 0;
+
+      var date1 = new Date();
+      var date2 = new Date(this.state.years, this.state.months, this.state.days, this.state.hours, this.state.minutes, this.state.seconds);
+      const diff = new Date(date2.getTime() - date1.getTime());
+
+      year = diff.getUTCFullYear() - 1970;
+      month = diff.getUTCMonth();
+      day = diff.getUTCDate() - 1;
+      hour = diff.getUTCHours();
+      minute = diff.getUTCMinutes();
+      second = diff.getUTCSeconds();
+
+      
+      this.setState({ year, month, day, hour, minute, second});
+      //console.log(diff.getUTCDate())
+      //console.log(date1.getUTCDate())
+
+    }, 1000);
+  }
+   
+        /*year = date2.getUTCFullYear() - date1.getUTCFullYear();
+        month = date2.getUTCMonth() - date1.getUTCMonth();
+        day = date2.getUTCDate() - date1.getUTCDate();
+        hour = (date2.getUTCHours() - date1.getUTCHours()) -1;
+        minute = (date2.getUTCMinutes() - date1.getUTCMinutes());
+        second = (date2.getUTCSeconds() - date1.getUTCSeconds());*/
+
+        /*if(date1.getTime() < date2.getTime()){
+  
+          if(hour <= 0 && minute <= 0 && second <= 1){
+            hour = hour + 23;
+            minute = minute + 60;
+            day = day - 1;
+          }
+  
+  
+          if (minute > 0){
+            minute = minute - 1;
+          } else {
+            minute = 59 + minute;
+            hour = hour - 1;
+          }
+  
+          second = 59 + second;
+            
+        } else {
+          year = 0;
+          month = 0;
+          day = 0;
+          hour = 0;
+          minute = 0;
+          second = 0;
+        }*/
+
+
+    /*this.interval = setInterval(() => {   
+
+      var timeTillDate="20, 02:08:00 pm"
+      var timeFormat="DD, hh:mm:ss a'"
+
+      const then = moment(timeTillDate, timeFormat);
+      const now = moment()
+
+      if(now.isBefore(then) === true){
+
+        var days = (then.format('DD') - now.format('DD')); 
+        var hours = (then.format('hh') - now.format('hh'));
+        var minutes = (then.format('mm') - now.format('mm'));
+        var seconds = (then.format('ss') - now.format('ss'));
+
+        
+        console.log(then.format("hh, a'"))
+        console.log(now.format("hh, a'"))
+
+        if ((then.format('hh') - now.format('hh')) === 0 && (then.format('mm') - now.format('mm')) === 0 && (then.format('ss') - now.format('ss')) === 0) {
+          hours = 23 + (then.format('hh') - now.format('hh'));
+          minutes = 59 + (then.format('mm') - now.format('mm'));
+          days = days - 1;
+        }
+
+        if(hours <= 0 && minutes <= 0 && seconds <= 1){
+          hours = hours + 23;
+          minutes = minutes + 60;
+          days = days - 1;
+        }
+
+
+        if (minutes > 0){
+          minutes = minutes - 1;
+        } else {
+          minutes = 59 + minutes;
+          hours = hours - 1;
+        }
+
+        seconds = 59 + seconds;
+          
+      } else {
+        days = 0;
+        hours = 0;
+        minutes = 0;
+        seconds = 0;
+      }  
+
+      this.setState({ days, hours, minutes, seconds });
+    }, 1000);  
+  }*/
 
   async loadBlockchainData(dispatch) {
     if(typeof window.ethereum!=='undefined'){
       const web3 = new Web3(window.ethereum)
       window.ethereum.enable();
-      const netId = await web3.eth.net.getId()
+      //const netId = await web3.eth.net.getId()
       var accounts = await web3.eth.getAccounts()
       this.setState({web3: web3});
 
@@ -33,8 +143,6 @@ class App extends Component {
             console.log(accounts)
             const balance = web3.eth.getBalance(accounts[0])
             this.setState({account: accounts[0], balance: balance})
-            this.loadTokenName()
-            this.loadmemberslength()
             
           } else {
             window.alert('Please login with MetaMask')
@@ -65,170 +173,133 @@ class App extends Component {
       }
 
       //load contracts
-      try {
-        const token = new web3.eth.Contract(Token.abi, Token.networks[netId].address)
-        const dApps = new web3.eth.Contract(dapps.abi, dapps.networks[netId].address)
-        const dappsAddress = dapps.networks[netId].address
-        const tokenAddress = Token.networks[netId].address
-        this.setState({ token: token, dApps: dApps, dappsAddress: dappsAddress, tokenAddress: tokenAddress})
-
-      } catch (e) {
-        console.log('Error', e)
-        window.alert('Contracts not deployed to the current network')
-      }
-      
 
     } else {
       window.alert('Please install MetaMask')
     }   
   }
 
-  async loadTokenName(){
+  async countdown(years, months, days, hours, minutes, seconds){
     if(this.state.dApps!=='undefined'){
-      try{
-        const tokenName = await this.state.token.methods.name().call()
-        this.setState({tokenName: tokenName})
+      
+      try{       
+     
+        this.setState({ years, months, days, hours, minutes, seconds});
+   
+      } catch (e) {
+        console.log('Error', e)
       }
-      catch (e) {
-        console.log('Error, load token name: ', e)
-      } 
     }
   }
-
-  async distributedTokens(){
+  
+  async pinata(){
     if(this.state.token!=='undefined'){
       
       try{
-        const supplyT = await this.state.token.methods.totalSupply().call();
-        this.setState({TokenSupply: supplyT/10**18})
+        
+      const pinataApiKey = "5b4324fda5106b24845f";
+      const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
+      const axios = require("axios");
+      const fs = require("fs");
+      const FormData = require("form-data");
+      const pinFileToIPFS = async () => {
+        const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
+        let data = new FormData();
+        data.append("file", fs.createReadStream("./Test.JSON"));
+        const res = await axios.post(url, data, {
+          maxContentLength: "Infinity", 
+          headers: {
+            "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
+            pinata_api_key: pinataApiKey, 
+            pinata_secret_api_key: pinataSecretApiKey,
+          },
+        });
+        console.log(res.data);
+        console.log(res.data.IpfsHash);
+      };
+      pinFileToIPFS();
     
       } catch (e) {
-        console.log('Error, Supply: ', e);
+        console.log('Error, Pinata: ', e);
       }
     }
   }
 
-  async issuance(to, amount){
-    if(this.state.dApps!=='undefined'){
+//IMAGEUPLOAD
+    // On file select (from the pop up)
+    onFileChange = event => {
+        
+      // Update the state
+      this.setState({ selectedFile: event.target.files[0] });
+
+    };
+
+    // On file upload (click the upload button)
+    onFileUpload = () => {
+
+      // Create an object of formData
+      const formData = new FormData();
+
+      // Update the formData object
+      formData.append(
+        "myFile",
+        this.state.selectedFile,
+        this.state.selectedFile.name
+      );
+
+      // Details of the uploaded file
+      console.log(this.state.selectedFile);
+
+      // Request made to the backend api
+      // Send formData object
       
-      try{
-        await this.state.dApps.methods.issuance(to, amount.toString()).send({from: this.state.account})
-        .on('transactionHash', (hash) => {
-          var answer = window.confirm("Redirect to etherscan?")
-          if (answer){
-            // similar behavior as an HTTP redirect
-            window.open("https://ropsten.etherscan.io/tx/" + hash);
-         
-          }
-          
-        })
-      } catch (e) {
-        console.log('Error, issuance: ', e)
+    };
+
+    // File content to be displayed after
+    // file upload is complete
+    fileData = () => {
+
+      if (this.state.selectedFile) {
+        
+        return (
+          <div>
+            <h2>File Details:</h2>
+            
+            <p>File Name: {this.state.selectedFile.name}</p>      
+            <p>File Type: {this.state.selectedFile.type}</p>
+            
+            <p>
+              Last Modified:{" "}
+              {this.state.selectedFile.lastModifiedDate.toDateString()}
+            </p>
+
+          </div>
+        );
+      } else {
+        return (
+          <div>
+            <br />
+            <h4>Choose before Pressing the Upload button</h4>
+          </div>
+        );
       }
-    }
-  }
+    };
 
-  async transfer(to, amount){
-    if(this.state.dApps!=='undefined'){
-        try{
-          await this.state.dApps.methods.transfer(to, amount.toString()).send({from: this.state.account})
-          .on('transactionHash', (hash) => {
-            var answer = window.confirm("Redirect to etherscan?")
-            if (answer){
-              // similar behavior as an HTTP redirect
-              window.open("https://ropsten.etherscan.io/tx/" + hash);
-           
-            } 
-          })
-        } catch (e) {
-          console.log('Error, Member not match: ', e)
-        }
-      }
-  }
 
-  
-  async loadcountdown(){
-    if(this.state.dApps!=='undefined'){
-      try{
-        // Set the date we're counting down to
-        var countDownDate = new Date("Jan 5, 2024 15:37:25").getTime();
-
-        // Update the count down every 1 second
-        var x = setInterval(function() {
-
-          // Get today's date and time
-          var now = new Date().getTime();
-
-          // Find the distance between now and the count down date
-          var distance = countDownDate - now;
-
-          // Time calculations for days, hours, minutes and seconds
-          var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-          // Display the result in the element with id="demo"
-          let countdown = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-
-          // If the count down is finished, write some text
-          if (distance < 0) {
-            clearInterval(x);
-            countdown = "EXPIRED";
-          }
-
-          this.setState({countdown :countdown})
-        }, 1000);
-      }
-      catch (e) {
-        console.log('Error, load members length: ', e)
-      } 
-    }
-  }
-
-  async loadimage(){
-    if(this.state.dApps!=='undefined'){
-      try{
-        const image_input = document.querySelector("#image_input");
-        var uploaded_image = "";
-
-        image_input.addEventListener("change", function(){
-          const reader = new FileReader();
-          reader.addEventListener("load", () => {
-            uploaded_image = reader.result;
-            document.querySelector("#display_image").style.backgroundImage = 'url(${uploaded_image})';
-          })
-          reader.readAsDataURL(this.files[0]);
-        })
-      }
-      catch (e) {
-        console.log('Error, load members length: ', e)
-      } 
-    }
-  }
- 
   constructor(props) {
     super(props)
     this.state = {
-      
-      Name: [],
-      Gender: [],
-      Address: [],
-      Source: [],
-      To: [],
-      Amount: [],
-      stringA: '',
-      stringB: '',
-      stringC: '',
-      numberD: '',
+
       web3: 'undefined',
       account: '',
-      token: null,
-      Dapps: null,
-      balance: 0,
       dappsAddress: null,
-      tokenName: '',
-      memberslength: null,
+      selectedFile: null,
+      years: '0',
+      months: '0',
+      days: '0',
+      hours: '0',
+      minutesB: '0',
+      seconds: '0',
 
       }
   
@@ -236,12 +307,12 @@ class App extends Component {
 
   render() {
     return (
-
+      
     <div className='text-monospace'>
         <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <div>
           <img src={logo} className="App-logo" alt="logo" height="10"/>     
-          <b className="navbar-brand" style={{float: "Middle", lineHeight: "35px"}}>CBDC</b>
+          <b className="navbar-brand" style={{float: "Middle", lineHeight: "35px"}}>NFT</b>
         </div>
         </nav>
         
@@ -249,7 +320,7 @@ class App extends Component {
         <div className="container-fluid mt-5 text-center">
             <br></br>
               <h1>Welcome to Dapps</h1>
-              <h2>{this.state.account}</h2>
+              <h2>Wallet : {this.state.account}</h2>
               <br></br>
               <div className="row">
                   <main role="main" className="d-flex justify-content-center mb-3 text-black">
@@ -257,86 +328,131 @@ class App extends Component {
                         <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" >
 
                           <Tab eventKey="CountDown" title="CountDown">
-                            <div>
+
+                          <div>
                               <br></br>
-
-                            <br></br>
-                              CountDown...
-                              <br></br>
-
-                              <p>
-                                {this.state.countdown}
-                              </p>
-                              
-
+                            Input Date and Time?
                               <form onSubmit={(e) => {
                                 e.preventDefault()
-                                let amount = this.IssuanceAmount.value
-                                let to = this.Issuanceaddress.value
-
-                                amount = amount * 10**18 //convert to wei
-                              
-                                this.issuance(to,amount)
-                  
-    
+                                let years = this.years.value
+                                let months = this.months.value - 1
+                                let days = this.days.value
+                                let hours = this.hours.value 
+                                let minutes = this.minutes.value
+                                let seconds = this.seconds.value
+                                
+                                this.countdown(years, months, days, hours, minutes, seconds)
+                               
                               }}>
                                 <div className='form-group mr-sm-2'>
-                                <br></br>
-                                  <label htmlFor="Issuanceaddress" style={{float: "left"}}>Node Address:</label>
-                                  <input
-                                    id='Issuanceaddress'
-                                    type='text'
-                                    ref={(input) => { this["Issuanceaddress"] = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='to...'
-                                  required />
 
-                                  <label htmlFor="TypeIssuance" style={{float: "left"}}>Token Issued:</label>
-                                  <select name="TypeIssuance" id="TypeIssuance" 
-                                    ref={(input) => { this.TypeIssuance = input }} 
-                                    className="form-control form-control-md">
-                                    <option value="Token">{this.state.tokenName}-({this.state.tokenAddress})</option>
-                                  </select>
-                                  
-                                  <label htmlFor="IssuanceAmount" style={{float: "left"}}>Amount:</label>
+                                  <label htmlFor="Year" style={{float: "left"}}>Year:</label>
                                   <input
-                                    id='IssuanceAmount'
-                                    step="0.01"
+                                    id='Year'
                                     type='number'
-                                    ref={(input) => { this.IssuanceAmount = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='amount...'
+                                    ref={(input) => { this.years = input }}
+                                    className="form-control form-control-sm"
+                                    placeholder='2000..'
                                     required />
 
-                                  
+                                  <label htmlFor="Month" style={{float: "left"}}>Month (1-12):</label>
+                                  <input
+                                    id='Month'
+                                    type='number'
+                                    ref={(input) => { this.months = input }}
+                                    className="form-control form-control-sm"
+                                    placeholder='1-12..'
+                                    required />
+
+                                  <label htmlFor="Day" style={{float: "left"}}>Day (1-31):</label>
+                                  <input
+                                    id='Day'
+                                    type='number'
+                                    ref={(input) => { this.days = input }}
+                                    className="form-control form-control-sm"
+                                    placeholder='1-31..'
+                                    required />
+
+                                  <label htmlFor="Hour" style={{float: "left"}}>Hour (0-23):</label>
+                                  <input
+                                    id='Hour'
+                                    type='number'
+                                    ref={(input) => { this.hours = input }}
+                                    className="form-control form-control-sm"
+                                    placeholder='0-23..'
+                                    required />
+                                    
+                                  <label htmlFor="Minute" style={{float: "left"}}>Minute (0-59)</label>
+                                  <input
+                                    id='Minute'
+                                    type='number'
+                                    ref={(input) => { this.minutes = input }}
+                                    className="form-control form-control-sm"
+                                    placeholder='0-59..'
+                                    required />
+
+                                  <label htmlFor="Second" style={{float: "left"}}>Second (0-59):</label>
+                                  <input
+                                    id='Second'
+                                    type='number'
+                                    ref={(input) => { this.seconds = input }}
+                                    className="form-control form-control-sm"
+                                    placeholder='0-59..'
+                                    required />
+
                                 </div>
-                                <button type='submit' className='btn btn-primary'>Issuance</button>
+                                <button type='submit' className='btn btn-primary'>Countdown</button>
                               </form>
-
                             </div>
-                          </Tab>
-                          <Tab eventKey="NFT Mint" title="NFT Mint">
-                            <div>
-                            <br></br>
-                              NFT Data
-                              <br></br>
 
-                              <form onSubmit={(e) => {
+                            <br></br>
+                              <h1>Countdown until{" "} </h1>
+                              <div className="countdown-wrapper">
+                                  <div className="countdown-item">
+                                    {this.state.year}
+                                      <span>years</span>
+                                  </div>
+                                  <div className="countdown-item">
+                                    {this.state.month}
+                                      <span>months</span>
+                                  </div>
+                                  <div className="countdown-item">
+                                    {this.state.day}
+                                      <span>days</span>
+                                  </div>
+                                </div>
+
+                                <div className="countdown-wrapper">
+                                  <div className="countdown-item">
+                                    {this.state.hour}
+                                      <span>hours</span>
+                                  </div>
+                                  <div className="countdown-item">
+                                    {this.state.minute}
+                                      <span>minutes</span>
+                                  </div>
+                                  <div className="countdown-item">
+                                    {this.state.second}
+                                      <span>seconds</span>
+                                  </div>
+                                </div>
+                          </Tab>
+
+                          <Tab eventKey="NFT Mint" title="NFT Mint">
+
+                          <div>
+
+                          <form onSubmit={(e) => {
                                 e.preventDefault()
-                                let amount = this.TransferAmount.value
-                                let to = this.Transferaddress.value
-                                amount = amount * 10**18 //convert to wei
-                               
-                                this.transfer(to,amount)
-  
+                    
                               }}>
                                 <div className='form-group mr-sm-2'>
-                                <br></br>
+                                <br></br> 
                                   
 
-                                  <label htmlFor="Name" style={{float: "left"}}>Name:</label>
+                                  <label htmlFor="Name" style={{float: "left"}}>Name:</label> 
                                   <input
-                                    id='Transferaddress'
+                                    id='Transferaddress' 
                                     type='text'
                                     ref={(input) => { this.Transferaddress = input }}
                                     className="form-control form-control-md"
@@ -351,26 +467,32 @@ class App extends Component {
                                     ref={(input) => { this.TransferAmount = input }}
                                     className="form-control form-control-md"
                                     placeholder='0'
-                                    required />
-
-                                  <label htmlFor="Picture" style={{float: "left"}}>Picture:</label>
-                                  <br></br>
-                                  <input
-                                    type='file'
-                                    id="image_input"
-                                    accept="Image/png, image/jpg"
-                                    required />
-
-                                  <br id="display_image"></br>
-
-                                  <script src="script.js"></script>
-
+                                    required />                
                                   
                                 </div>
-                                <button type='submit' className='btn btn-primary'>Mint</button>
+                                
                               </form>
+                          </div>
 
-                            </div>
+                          <div>
+                          <br></br>
+                          <br></br>
+
+                              <h3>
+                                Image Upload 
+                              </h3>
+                              <div>
+                                  <input type="file" onChange={this.onFileChange} />
+                                  <button onClick={this.onFileUpload}>
+                                    Upload!
+                                  </button>
+                              </div>
+                            {this.fileData()}
+                          </div>
+
+                          <br></br>
+                          <button type='submit' className='btn btn-primary'>Mint</button>
+
                           </Tab>
                           
 
