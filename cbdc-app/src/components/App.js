@@ -2,7 +2,6 @@ import logo from './logo.svg';
 import { Tabs, Tab } from 'react-bootstrap'
 import React, {Component } from "react";
 import Web3 from 'web3';
-
 //import moment from 'moment';
 
 import './App.css';
@@ -196,8 +195,8 @@ class App extends Component {
       const pinataApiKey = "5b4324fda5106b24845f";
       const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
       const axios = require("axios");
-      //const fs = require("fs");
       const FormData = require("form-data");
+
       const pinFileToIPFS = async () => {
         const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
         let data = new FormData();
@@ -209,14 +208,109 @@ class App extends Component {
             pinata_api_key: pinataApiKey, 
             pinata_secret_api_key: pinataSecretApiKey,
           },
-        });
+        });   
+        
+        this.state.ipfshash = res.data.IpfsHash;
+
         console.log(res.data);
         console.log(res.data.IpfsHash);
       };
-      pinFileToIPFS();
-    
+
+      /*const pinJSONToIPFS = async() => {  
+
+        const metadata = {
+          "name": "Test Art",
+          "hash": "https://ipfs.io/ipfs/" + this.state.ipfshash, 
+          "by": "Kevin Thamrin"
+      }
+          const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
+          fetch(url, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  pinata_api_key: pinataApiKey,
+                  pinata_secret_api_key: pinataSecretApiKey
+              },
+              body: JSON.stringify(metadata)
+          });
+          //console.log(this.state.ipfshash);
+  
+      }
+      pinJSONToIPFS();  */
+      pinFileToIPFS();  
+    } 
+
+    async pinata2(){   
+      const pinataApiKey = "5b4324fda5106b24845f";
+      const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
+
+      const pinJSONToIPFS = async() => {  
+
+        const metadata = {
+          pinataMetadata: {
+            name: 'TestArt',
+            keyvalues: {
+                ItemID: 'Item001',
+                CheckpointID: 'Checkpoint001',
+                Source: 'CompanyA',
+                WeightInKilos: 5.25
+            }
+        },
+        pinataContent: {
+          "name": "Test Art",
+          "hash": "https://ipfs.io/ipfs/" + this.state.ipfshash, 
+          "by": "Kevin Thamrin"
+        }
+      }
+          const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
+          
+          const res = fetch(url, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  pinata_api_key: pinataApiKey,
+                  pinata_secret_api_key: pinataSecretApiKey
+              },
+              body: JSON.stringify(metadata)
+          });
+          console.log(res.IpfsHash)
+      }
+      pinJSONToIPFS();  
     } 
  
+      /*const pinataApiKey = "5b4324fda5106b24845f";
+      const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
+      const axios = require("axios");
+      const FormData = require("form-data");
+
+      const pinJSONToIPFS = async () => {
+        const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
+        let data = new FormData();
+
+        this.state.metadata = JSON.stringify({   
+          "name": "Test Art",
+          "hash": "https://ipfs.io/ipfs/QmZf5PKAh9QbxL8v66mbpmSvYZNXnHuqWTsGEGffHV17W9", 
+          "by": "Kevin Thamrin"
+       });
+       var metadata = this.state.metadata;
+        console.log(this.state.metadata);
+
+        data.append('file', metadata);
+        const res = await axios.post(url, data, {
+            maxContentLength: "Infinity", 
+            headers: {
+              "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
+              pinata_api_key: pinataApiKey, 
+              pinata_secret_api_key: pinataSecretApiKey,
+            },
+          })
+  
+        console.log(res.data.IpfsHash);
+        console.log(res.data);
+      };
+      pinJSONToIPFS();  */
+     
+
 //IMAGEUPLOAD
     // On file select (from the pop up)
     onFileChange = event => {
@@ -226,29 +320,6 @@ class App extends Component {
 
     };
 
-    // On file upload (click the upload button)
-    onFileUpload = () => {
-
-      // Create an object of formData
-      const formData = new FormData();
-
-      // Update the formData object
-      formData.append(
-        "myFile",
-        this.state.selectedFile,
-        this.state.selectedFile.name
-      );
-
-      // Details of the uploaded file
-      console.log(this.state.selectedFile);
-
-      // Request made to the backend api
-      // Send formData object
-      
-    };
-
-    // File content to be displayed after
-    // file upload is complete
     fileData = () => {
 
       if (this.state.selectedFile) {
@@ -271,7 +342,7 @@ class App extends Component {
         return (
           <div>
             <br />
-            <h4>Choose before Pressing the Upload button</h4>
+            <h5>Choose before Pressing the Upload button</h5>
           </div>
         );
       }
@@ -437,7 +508,6 @@ class App extends Component {
                           <form onSubmit={(e) => {
                                 e.preventDefault()
                                 this.pinata()
-                    
                               }}>
                                 <div className='form-group mr-sm-2'>
                                 <br></br> 
@@ -463,32 +533,40 @@ class App extends Component {
                                      />                
                                   
                                 </div>
-                                <br></br>
-                                <button type='submit' className='btn btn-primary'>Mint</button>
+                                <div>
+                                  <br></br>
+                                      <h4>
+                                        Image Upload 
+                                      </h4>
+                                      <div>
+                                          <input type="file" onChange={this.onFileChange} />
+                                      </div>
+                                    {this.fileData()}
+                                </div>
+                                <button type='submit' className='btn btn-primary'>Upload</button>
                                 
                               </form>
+
+                                <br></br>
+
+                            <form onSubmit={(e) => {
+                                e.preventDefault()
+                                this.pinata2()
+                              }}>
+                                <div>
+                                  <h5>
+                                    Wait until hash updated, then press Mint : {this.state.ipfshash}
+                                  </h5>
+                                  <br></br>
+                                  
+                                  <button type='submit' className='btn btn-primary'>Mint</button>
+                                </div>
+                                
+                            </form>
+                                     
                           </div>
 
-                          <div>
-                          <br></br>
-                          <br></br>
-
-                              <h3>
-                                Image Upload 
-                              </h3>
-                              <div>
-                                  <input type="file" onChange={this.onFileChange} />
-                                  <button onClick={this.onFileUpload}>
-                                    Upload!
-                                  </button>
-                              </div>
-                            {this.fileData()}
-                          </div>
-
-
-
-                          </Tab>
-                          
+                          </Tab>                     
 
                         </Tabs>
                         </div>
