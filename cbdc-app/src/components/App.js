@@ -192,20 +192,16 @@ class App extends Component {
     }
   }
   
-  async pinata(){
-    if(this.state.token!=='undefined'){
-      
-      try{
-        
+  async pinata(){   
       const pinataApiKey = "5b4324fda5106b24845f";
       const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
       const axios = require("axios");
-      const fs = require("fs");
+      //const fs = require("fs");
       const FormData = require("form-data");
       const pinFileToIPFS = async () => {
         const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
         let data = new FormData();
-        data.append("file", fs.createReadStream("./Test.JSON"));
+        data.append("file", this.state.selectedFile);
         const res = await axios.post(url, data, {
           maxContentLength: "Infinity", 
           headers: {
@@ -219,12 +215,8 @@ class App extends Component {
       };
       pinFileToIPFS();
     
-      } catch (e) {
-        console.log('Error, Pinata: ', e);
-      }
-    }
-  }
-
+    } 
+ 
 //IMAGEUPLOAD
     // On file select (from the pop up)
     onFileChange = event => {
@@ -444,6 +436,7 @@ class App extends Component {
 
                           <form onSubmit={(e) => {
                                 e.preventDefault()
+                                this.pinata()
                     
                               }}>
                                 <div className='form-group mr-sm-2'>
@@ -457,7 +450,7 @@ class App extends Component {
                                     ref={(input) => { this.Transferaddress = input }}
                                     className="form-control form-control-md"
                                     placeholder='Name..'
-                                    required />
+                                     />
 
                                   <label htmlFor="Strength" style={{float: "left"}}>Strength:</label>
                                   <input
@@ -467,9 +460,11 @@ class App extends Component {
                                     ref={(input) => { this.TransferAmount = input }}
                                     className="form-control form-control-md"
                                     placeholder='0'
-                                    required />                
+                                     />                
                                   
                                 </div>
+                                <br></br>
+                                <button type='submit' className='btn btn-primary'>Mint</button>
                                 
                               </form>
                           </div>
@@ -490,8 +485,7 @@ class App extends Component {
                             {this.fileData()}
                           </div>
 
-                          <br></br>
-                          <button type='submit' className='btn btn-primary'>Mint</button>
+
 
                           </Tab>
                           
