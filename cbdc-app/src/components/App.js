@@ -2,7 +2,6 @@ import logo from './logo.svg';
 import { Tabs, Tab } from 'react-bootstrap'
 import React, {Component } from "react";
 import Web3 from 'web3';
-//import moment from 'moment';
 
 import './App.css';
 
@@ -191,7 +190,7 @@ class App extends Component {
     }
   }
   
-  async pinata(){   
+  async pinata(name, strength){   
       const pinataApiKey = "5b4324fda5106b24845f";
       const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
       const axios = require("axios");
@@ -211,9 +210,10 @@ class App extends Component {
           },
         });   
         
+        this.state.name = name;
+        this.state.strength = strength;
         this.state.ipfshash = res.data.IpfsHash;
 
-        console.log(res.data);
         console.log(res.data.IpfsHash);
       };
       pinFileToIPFS();  
@@ -237,8 +237,9 @@ class App extends Component {
             }
           },
           pinataContent: {
-            "name": "Test Art",
+            "name": this.state.name,
             "hash": "https://ipfs.io/ipfs/" + this.state.ipfshash, 
+            "strength": this.state.strength,
             "by": "Kevin Thamrin"
           }
         }
@@ -247,11 +248,9 @@ class App extends Component {
         
         const res = await axios.post(url, metadata, {
           headers: {
-            
               pinata_api_key: pinataApiKey, 
               pinata_secret_api_key: pinataSecretApiKey,
-          },
-          body: JSON.stringify(metadata)
+          },      
         });
 
         console.log(res.data.IpfsHash);
@@ -274,39 +273,6 @@ class App extends Component {
       }
       pinJSONToIPFS();  
     } */
- 
-      /*const pinataApiKey = "5b4324fda5106b24845f";
-      const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
-      const axios = require("axios");
-      const FormData = require("form-data");
-
-      const pinJSONToIPFS = async () => {
-        const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
-        let data = new FormData();
-
-        this.state.metadata = JSON.stringify({   
-          "name": "Test Art",
-          "hash": "https://ipfs.io/ipfs/QmZf5PKAh9QbxL8v66mbpmSvYZNXnHuqWTsGEGffHV17W9", 
-          "by": "Kevin Thamrin"
-       });
-       var metadata = this.state.metadata;
-        console.log(this.state.metadata);
-
-        data.append('file', metadata);
-        const res = await axios.post(url, data, {
-            maxContentLength: "Infinity", 
-            headers: {
-              "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
-              pinata_api_key: pinataApiKey, 
-              pinata_secret_api_key: pinataSecretApiKey,
-            },
-          })
-  
-        console.log(res.data.IpfsHash);
-        console.log(res.data);
-      };
-      pinJSONToIPFS();  */
-     
 
 //IMAGEUPLOAD
     // On file select (from the pop up)
@@ -504,7 +470,9 @@ class App extends Component {
 
                           <form onSubmit={(e) => {
                                 e.preventDefault()
-                                this.pinata()
+                                let name = this.Name.value
+                                let strength = this.Strength.value
+                                this.pinata(name,strength)
                               }}>
                                 <div className='form-group mr-sm-2'>
                                 <br></br> 
@@ -512,22 +480,22 @@ class App extends Component {
 
                                   <label htmlFor="Name" style={{float: "left"}}>Name:</label> 
                                   <input
-                                    id='Transferaddress' 
+                                    id='Name' 
                                     type='text'
-                                    ref={(input) => { this.Transferaddress = input }}
+                                    ref={(input) => { this.Name = input }}
                                     className="form-control form-control-md"
                                     placeholder='Name..'
-                                     />
+                                    required />
 
                                   <label htmlFor="Strength" style={{float: "left"}}>Strength:</label>
                                   <input
-                                    id='TransferAmount'
-                                    step="0.01"
+                                    id='Strength'
+                                    step="1"
                                     type='number'
-                                    ref={(input) => { this.TransferAmount = input }}
+                                    ref={(input) => { this.Strength = input }}
                                     className="form-control form-control-md"
-                                    placeholder='0'
-                                     />                
+                                    placeholder='1'
+                                    required />                
                                   
                                 </div>
                                 <div>
