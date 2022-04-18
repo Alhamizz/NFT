@@ -201,6 +201,7 @@ class App extends Component {
         const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
         let data = new FormData();
         data.append("file", this.state.selectedFile);
+        
         const res = await axios.post(url, data, {
           maxContentLength: "Infinity", 
           headers: {
@@ -215,34 +216,13 @@ class App extends Component {
         console.log(res.data);
         console.log(res.data.IpfsHash);
       };
-
-      /*const pinJSONToIPFS = async() => {  
-
-        const metadata = {
-          "name": "Test Art",
-          "hash": "https://ipfs.io/ipfs/" + this.state.ipfshash, 
-          "by": "Kevin Thamrin"
-      }
-          const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
-          fetch(url, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  pinata_api_key: pinataApiKey,
-                  pinata_secret_api_key: pinataSecretApiKey
-              },
-              body: JSON.stringify(metadata)
-          });
-          //console.log(this.state.ipfshash);
-  
-      }
-      pinJSONToIPFS();  */
       pinFileToIPFS();  
     } 
 
-    async pinata2(){   
+    async pinata2(){  
       const pinataApiKey = "5b4324fda5106b24845f";
       const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
+      const axios = require("axios");
 
       const pinJSONToIPFS = async() => {  
 
@@ -255,16 +235,33 @@ class App extends Component {
                 Source: 'CompanyA',
                 WeightInKilos: 5.25
             }
-        },
-        pinataContent: {
-          "name": "Test Art",
-          "hash": "https://ipfs.io/ipfs/" + this.state.ipfshash, 
-          "by": "Kevin Thamrin"
+          },
+          pinataContent: {
+            "name": "Test Art",
+            "hash": "https://ipfs.io/ipfs/" + this.state.ipfshash, 
+            "by": "Kevin Thamrin"
+          }
         }
+
+        const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
+        
+        const res = await axios.post(url, metadata, {
+          headers: {
+            
+              pinata_api_key: pinataApiKey, 
+              pinata_secret_api_key: pinataSecretApiKey,
+          },
+          body: JSON.stringify(metadata)
+        });
+
+        console.log(res.data.IpfsHash);
+
+        this.state.ipfshash2 = res.data.IpfsHash;
       }
-          const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
-          
-          const res = fetch(url, {
+      pinJSONToIPFS();  
+    } 
+              
+          /*const res = fetch(url, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
@@ -276,7 +273,7 @@ class App extends Component {
           console.log(res.IpfsHash)
       }
       pinJSONToIPFS();  
-    } 
+    } */
  
       /*const pinataApiKey = "5b4324fda5106b24845f";
       const pinataSecretApiKey = "446cc7cb18e03f24097bf3fa3e20aa1a2dd23630df3e41a476b344ed8d5cc871";
@@ -326,7 +323,7 @@ class App extends Component {
         
         return (
           <div>
-            <h2>File Details:</h2>
+            <h4>File Details:</h4>
             
             <p>File Name: {this.state.selectedFile.name}</p>      
             <p>File Type: {this.state.selectedFile.type}</p>
@@ -556,10 +553,14 @@ class App extends Component {
                                 <div>
                                   <h5>
                                     Wait until hash updated, then press Mint : {this.state.ipfshash}
-                                  </h5>
-                                  <br></br>
-                                  
+                                  </h5>   
+                                  <br></br>                        
                                   <button type='submit' className='btn btn-primary'>Mint</button>
+                                  <br></br>
+                                  <br></br>
+                                  <h5>
+                                    JSON Hash : {this.state.ipfshash2}
+                                  </h5>   
                                 </div>
                                 
                             </form>
